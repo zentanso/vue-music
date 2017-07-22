@@ -6,7 +6,7 @@
       <div class="bar"></div>
       <div class="bar"></div>
     </div>
-    <span class="loadmore-tip">{{tip}}</span>
+    <span class="loadmore-tip">{{msg}}</span>
   </div>
 </template>
 
@@ -18,7 +18,7 @@ export default {
       default: true,
       type: Boolean
     },
-    'tip': {
+    'msg': {
       default: '加载中',
       type: String
     }

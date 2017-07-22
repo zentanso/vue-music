@@ -43,6 +43,10 @@ export default {
 @import '../styles/mixins';
 @pad: 0.1rem;
 
+.red {
+  color: red;
+}
+
 .item {
   position: relative;
   background-color: #c2c2c4;

@@ -6,46 +6,55 @@
     </x-header>
     <div class="wrapper">
       <div class="playlist-header">
-        <div class="pic-desc" v-if="!isRecommend">
+        <div v-if="!isRecommend">
           <square-pic-item size="5rem" :pic="detail.coverImgUrl + '?params=300y300'"></square-pic-item>
           <div class="desc">
-            <div class="playlist-name">{{detail.name}}</div>
+            <div class="playlist-name">{{detail && detail.name}}</div>
             <router-link :to="`/user/${detail.creator && detail.creator.userId}`" :style="{color: '#fff'}">
               <div class="playlist-author">{{detail.creator && detail.creator.nickname}}</div>
             </router-link>  
           </div>
         </div>
-        <div v-else class="recommend-header">
+        <p v-else class="recommend-header">
           每日推荐
-        </div>
+        </p>
       </div>
-      <list-item class="playlist-control" @click.native="playAll">
-        <span slot="left" class="play-all-btn">
-          <x-icon slot="right" type="ios-play" class="list-icon"></x-icon>                
-        </span>
-        <div class="play-all-txt" slot="title">
-          播放全部
-          <span>{{`(共${isRecommend ? detail.tracks && detail.tracks.length : (detail.trackCount || 0)}首)`}}</span>
+      <div class="playlist-control" @click="playAll">
+        <div>
+          <span class="play-all-btn">
+            <x-icon type="ios-play" class="list-icon"></x-icon>                
+          </span>
         </div>
-      </list-item>
-      <template v-if="loadingState.detail !== LOADING">
-        <list-item @click.native="onTrackClick(index, item.id)" :key="item.id" class="playlist-item" v-for="(item, index) in detail.tracks">
-          <span class="order-num" slot="left">{{index+1}}</span>      
-          <h3 class="track-name" slot="title">
-            {{item.name}}
-            <span class="desc"></span>
-          </h3>
-           <p class="track-singer" slot='subtitle'>
-            {{isRecommend ? 
-            `${item.artists && item.artists[0].name} - ${item.album.name}` : 
-            `${item.ar && item.ar[0].name} - ${item.al.name}`
-            }}
-          </p> 
-          <x-icon slot="right" type="android-more-vertical" class="list-icon"></x-icon>      
-        </list-item>
-      </template>
-      <m-loading v-if="loadingState.detail === LOADING" tip="努力加载中"></m-loading>
-      <load-error @click.native="getListDetail" v-if="loadingState.detail === ERROR" msg="加载失败，点击重新加载"></load-error>
+        <p>
+          播放全部
+          <span>
+            {{`(共${isRecommend ? (detail.tracks && detail.tracks.length || 0) : (detail.trackCount || 0)}首)`}}
+          </span>
+        </p>
+      </div>
+      <ol class="playlist" v-if="!loadingDetail">
+        <li @click="onTrackClick(index, item.id)" :key="item.id" class="playlist-item" v-for="(item, index) in detail.tracks">
+          <span class="order-num">{{index+1}}</span>      
+          <div class="detail">
+            <h3 class="track-name">
+              {{item.name}}
+              <span class="desc"></span>
+            </h3>
+            <p class="track-singer">
+              {{isRecommend ? 
+              `${item.artists && item.artists[0].name} - ${item.album && item.album.name}` : 
+              `${item.ar && item.ar[0].name} - ${item.al && item.al.name}`
+              }} 
+            </p>
+          </div>
+        </li>
+      </ol>
+      <loading-msg
+        :isLoading="loadingDetail"
+        :isError="loadDetailError"
+        :reloadFunc="_getPlayListDetail"
+      >
+      </loading-msg>
       <mini-player-bar @on-list-click="showDrawer"></mini-player-bar>
       <play-list-drawer v-model="drawerState"></play-list-drawer>
     </div>
@@ -54,10 +63,8 @@
 
 <script>
 import { XHeader } from 'vux'
-import ListItem from '@/components/ListItem'
 import SquarePicItem from '@/components/SquarePicItem'
-import MLoading from '@/components/MLoading'
-import LoadError from '@/components/LoadError'
+import LoadingMsg from '../common/LoadingMsg'
 import MiniPlayerBar from '@/components/MiniPlayerBar'
 import PlayListDrawer from '@/components/PlayListDrawer'
 import { LOADING, LOADED, ERROR } from '@/constants'
@@ -68,17 +75,15 @@ export default {
   name: 'playlistdetail',
   components: {
     XHeader,
-    ListItem,
     SquarePicItem,
-    MLoading,
     MiniPlayerBar,
     PlayListDrawer,
-    LoadError
+    LoadingMsg
   },
   data () {
     return {
       detail: {},
-      loadingState: {
+      loadState: {
         detail: LOADED
       },
       lastId: -1,
@@ -95,7 +100,7 @@ export default {
     if (this.isRecommend) {
       await this._getRecommendSongs()
     } else {
-      await this.getListDetail()
+      await this._getPlayListDetail()
     }
   },
   computed: {
@@ -104,6 +109,12 @@ export default {
     ]),
     isRecommend () {
       return this.$route.params.id === 'recommend'
+    },
+    loadingDetail () {
+      return this.loadState.detail === LOADING
+    },
+    loadDetailError () {
+      return this.loadState.detail === ERROR
     }
   },
   methods: {
@@ -133,27 +144,27 @@ export default {
       window.history.go(-1)
     },
     async _getRecommendSongs () {
-      this.loadingState.detail = LOADING
+      this.loadState.detail = LOADING
       const detail = await getRecommendSongs()
       if (!detail) {
         console.log('get list detail')
-        this.loadingState.detail = ERROR
+        this.loadState.detail = ERROR
         return
       }
       this.detail.tracks = detail.data.recommend
       this.detail.trackCount = detail.data.recommend.length
-      this.loadingState.detail = LOADED
+      this.loadState.detail = LOADED
     },
-    async getListDetail () {
-      this.loadingState.detail = LOADING
+    async _getPlayListDetail () {
+      this.loadState.detail = LOADING
       const detail = await getPlayListDetail(this.$route.params.id)
       if (!detail) {
         console.log('get list detail')
-        this.loadingState.detail = ERROR
+        this.loadState.detail = ERROR
         return
       }
       this.detail = detail.data.playlist
-      this.loadingState.detail = LOADED
+      this.loadState.detail = LOADED
     },
     onTrackClick (index, id) {
       if (this.isFM) {
@@ -207,6 +218,9 @@ export default {
   width: 100%;
   padding: 0.8rem;
   background: linear-gradient(120deg, #3e3838, #8f8db5);
+  > div {
+    display: flex
+  }
 }
 
 .desc {
@@ -225,16 +239,14 @@ export default {
   font-size: 12px;
 }
 
-.pic-desc {
-  display: flex;
-}
-
 .wrapper {
   margin-top: 46px;
   padding-bottom: 3rem;
 }
 
 .order-num {
+  .f-all-center();
+  width: 15%;
   font-size: 16px;
   color: grey;
 }
@@ -261,39 +273,37 @@ export default {
 }
 
 .playlist-item {
+  .f-vertical-center();
   border-bottom: 1px solid @light-grey;
   padding: 0.2rem 0 0.2rem 0;
-  background-color: #fff;  
-  &:hover,
-  &:active {
-    background-color: @light-grey;
-  }
-  &:link,
-  &:visited {
-    background-color: #fff;
+  background-color: #fff;
+  .detail {
+    flex: 1;
   }
 }
 
 .playlist-control {
+  display: flex;
+  align-items: center;
   cursor: pointer;
   padding: 10px 0 10px 0;
   border-bottom: 1px solid @light-grey;
-}
-
-.play-all-btn {
-  .circle-btn(20px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px solid grey;
-}
-
-.play-all-txt {
-  font-size: 16px;
-  margin: 5px 0 5px 0;
-  > span {
-    font-size: 12px;
-    color: grey;
+  > div {
+    .f-horizontal-center();
+    width: 15%;
+    .play-all-btn {
+      .circle(20px);
+      .f-all-center();
+      border: 1px solid grey;
+    }
+  }
+  > p {
+    font-size: 16px;
+    margin: 5px 0 5px 0;
+    > span {
+      font-size: 12px;
+      color: grey;
+    }
   }
 }
 </style>

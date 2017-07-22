@@ -20,20 +20,32 @@
     </tab>
     <div class="wrapper">
       <div v-show="tabType === 'songs'">
-        <m-loading v-show="loadingState.songs === LOADING"></m-loading>
-        <load-error v-show="loadingState.songs === ERROR"></load-error>
-        <list-item class="result-item" :left="false" :key="item.id" v-for="item in result.songs" @click.native="onSongClick(item)">
-          <p class="title" slot="title">{{item.name}}</p>
-          <p class="subtitle" slot="subtitle">{{`${item.artists[0].name} - ${item.album.name}`}}</p>
-        </list-item>
+        <loading-msg
+          :isLoading="loadingSongs"
+          :isError="loadSongsError"
+          :reloadFunc="getSearchResult"
+        >
+        </loading-msg>
+        <ul>
+          <li class="result-item" :left="false" :key="item.id" v-for="item in result.songs" @click="onSongClick(item)">
+            <p class="title">{{item.name}}</p>
+            <p class="subtitle">{{`${item.artists[0].name} - ${item.album.name}`}}</p>
+          </li>
+        </ul>
       </div>
       <div v-show="tabType === 'playlists'">
-        <m-loading v-show="loadingState.playlists === LOADING"></m-loading>
-        <load-error v-show="loadingState.playlists === ERROR"></load-error>
-        <list-item class="result-item" :left="false" :key="item.id" v-for="item in result.playlists" @click.native="onPlayListClick(item.id)">
-          <p class="title" slot="title">{{item.name}}</p>
-          <p class="subtitle" slot="subtitle">{{`${item.trackCount}首 by ${item.creator.nickname}, 播放${item.playCount}次`}}</p>
-        </list-item>
+        <loading-msg
+          :isLoading="loadingPlayLists"
+          :isError="loadPlayListsError"
+          :reloadFunc="getSearchResult"
+        >
+        </loading-msg>
+        <ul>
+          <li class="result-item" :left="false" :key="item.id" v-for="item in result.playlists" @click="onPlayListClick(item.id)">
+            <p class="title">{{item.name}}</p>
+            <p class="subtitle">{{`${item.trackCount}首 by ${item.creator.nickname}, 播放${item.playCount}次`}}</p>
+          </li>
+        </ul>
       </div>
     </div>
     <mini-player-bar @on-list-click="showDrawer"></mini-player-bar>
@@ -45,24 +57,20 @@
 import { XHeader, Tab, TabItem } from 'vux'
 import MiniPlayerBar from '@/components/MiniPlayerBar'
 import { search } from '@/api'
-import ListItem from '@/components/ListItem'
 import PlayListDrawer from '@/components/PlayListDrawer'
-import MLoading from '@/components/MLoading'
-import LoadError from '@/components/LoadError'
 import { mapActions } from 'vuex'
 import { LOADING, LOADED, ERROR } from '@/constants'
+import LoadingMsg from '../common/LoadingMsg'
 
 export default {
   name: 'search',
   components: {
     XHeader,
     MiniPlayerBar,
-    ListItem,
     PlayListDrawer,
     Tab,
     TabItem,
-    MLoading,
-    LoadError
+    LoadingMsg
   },
   data () {
     return {
@@ -79,14 +87,10 @@ export default {
         songs: 1,
         playlists: 1000
       },
-      loadingState: {
+      loadState: {
         songs: LOADED,
         playlists: LOADED
-      },
-      LOADING,
-      ERROR,
-      LOADED,
-      testState: true
+      }
     }
   },
   computed: {
@@ -95,6 +99,18 @@ export default {
     },
     tabType () {
       return this.tabTypes[this.tabNum]
+    },
+    loadingSongs () {
+      return this.loadState.songs === LOADING
+    },
+    loadSongsError () {
+      return this.loadState.songs === ERROR
+    },
+    loadingPlayLists () {
+      return this.loadState.playlists === LOADING
+    },
+    loadPlayListsError () {
+      return this.loadState.playlists === ERROR
     }
   },
   methods: {
@@ -107,15 +123,15 @@ export default {
     },
     async getSearchResult () {
       if (this.key === undefined || this.key.length === 0) return
-      this.loadingState[this.tabType] = LOADING
+      this.loadState[this.tabType] = LOADING
       const result = await search(this.key, this.tabKey, 20)
       if (!result) {
-        this.loadingState[this.tabType] = ERROR
+        this.loadState[this.tabType] = ERROR
         return
       }
 
       this.result[this.tabType] = result.data.result[this.tabType]
-      this.loadingState[this.tabType] = LOADED
+      this.loadState[this.tabType] = LOADED
     },
     initResult () {
       for (let i in this.result) {
@@ -150,7 +166,7 @@ export default {
   },
   watch: {
     async tabNum () {
-      if (this.loadingState[this.tabType] === LOADING) return
+      if (this.loadState[this.tabType] === LOADING) return
       if (this.result[this.tabType]) return
       await this.getSearchResult()
     }
@@ -199,14 +215,16 @@ export default {
   padding-bottom: 3rem;
 }
 
-.title {
-  font-size: 16px;
-  padding-bottom: 0.2rem;
-  color: #8f91ff;
-}
-
 .result-item {
   padding: 0.5rem 0 0.5rem 0.5rem;
   border-bottom: 1px solid @light-grey;
+  .title {
+    font-size: 14px;
+    padding-bottom: 0.2rem;
+    color: #8f91ff;
+  }
+  .subtitle {
+    font-size: 10px;
+  }
 }
 </style>

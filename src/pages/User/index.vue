@@ -30,8 +30,12 @@
           </div>
         </div>
       </router-link>
-      <m-loading v-if="loadingPlayList"></m-loading>
-      <load-error v-if="loadPlayListError"></load-error>
+      <loading-msg
+        :isLoading="loadingPlayList"
+        :isError="loadPlayListError"
+        :reloadFunc="_getUserPlayList"
+      >
+      </loading-msg>
     </div>
   </div>
 </template>
@@ -44,9 +48,8 @@ import {
 } from '@/api'
 import { LOADING, LOADED, ERROR } from '@/constants'
 import { XHeader, Tab, TabItem } from 'vux'
-import MLoading from '@/components/MLoading'
-import LoadError from '@/components/LoadError'
 import { getListenNum } from '@/filters'
+import LoadingMsg from '../common/LoadingMsg'
 
 export default {
   name: 'user',
@@ -68,8 +71,7 @@ export default {
     XHeader,
     Tab,
     TabItem,
-    MLoading,
-    LoadError
+    LoadingMsg
   },
   computed: {
     profile () {
@@ -184,7 +186,7 @@ export default {
   background-size: cover;
   background-color: #000;
   .avatar {
-    .circle-btn(80px);
+    .circle(80px);
     background-size: cover;
   }
   .name {

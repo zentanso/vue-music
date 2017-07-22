@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button-tab v-model="tabNum" class="button-tab">
+    <button-tab v-model="tabIndex" class="button-tab">
       <button-tab-item v-for="item in typeArr" :key="item">
         {{item}}
       </button-tab-item>
@@ -8,15 +8,19 @@
     <div 
       class="list-container" 
       v-infinite-scroll="loadMore" 
-      infinite-scroll-disabled="disabled" 
+      infinite-scroll-disabled="loadDisabled" 
       infinite-scroll-distance="200"
     >
       <router-link  v-for="item in playlist" :key="item.id" :to="`/playlistdetail/${item.id}`">
         <square-pic-item :size="picSize" :desc="item.name" :pic="item.coverImgUrl">
         </square-pic-item>
       </router-link>
-      <load-error @click.native="loadMore" :show="loadingState.playlist === ERROR" msg="加载失败，点击重新加载"></load-error>
-      <m-loading v-if="!nomore" :show="loadingState.playlist === LOADING" tip="努力加载中(｀・ω・´)"></m-loading>
+      <loading-msg
+        :isLoading="loadingPlayList"
+        :isError="loadPlayListError"
+        :reloadFunc="loadMore"
+      >
+      </loading-msg>
       <div v-if="nomore" class="nomore">没有更多了>_<</div>
     </div>
   </div>
@@ -26,8 +30,7 @@
 import { getPlayList } from '@/api'
 import { LOADING, LOADED, ERROR, END } from '@/constants'
 import SquarePicItem from '@/components/SquarePicItem'
-import LoadError from '@/components/LoadError'
-import MLoading from '@/components/MLoading'
+import LoadingMsg from '../common/LoadingMsg'
 import { ButtonTab, ButtonTabItem } from 'vux'
 
 export default {
@@ -35,20 +38,15 @@ export default {
   data () {
     return {
       playlist: [],
-      loadingState: {
+      loadState: {
         playlist: LOADED
       },
-      LOADING,
-      LOADED,
-      ERROR,
-      END,
       limit: 10,
       page: 0,
       picSize: '7.9rem',
       end: false,
       leaving: false,
-      scrollTop: 0,
-      tabNum: 0,
+      tabIndex: 0,
       typeArr: ['华语', '欧美', '电子']
     }
   },
@@ -60,32 +58,35 @@ export default {
   },
   computed: {
     type () {
-      return this.typeArr[this.tabNum]
+      return this.typeArr[this.tabIndex]
     },
-    disabled () {
-      return this.loadingState.playlist === LOADING || this.loadingState.playlist === ERROR
+    loadDisabled () {
+      return this.loadState.playlist === LOADING || this.loadState.playlist === ERROR
     },
     nomore () {
-      return this.loadingState.playlist === END
+      return this.loadState.playlist === END
     },
     offset () {
       return this.page * this.limit
+    },
+    loadingPlayList () {
+      return this.loadState.playlist === LOADING
+    },
+    loadPlayListError () {
+      return this.loadState.playlist === ERROR
     }
   },
   components: {
-    MLoading,
+    LoadingMsg,
     SquarePicItem,
-    LoadError,
     ButtonTab,
     ButtonTabItem
   },
   deactivated () {
     this.leaving = true
-    this.scrollTop = document.body.scrollTop
   },
   activated () {
     this.leaving = false
-    document.body.scrollTop = this.scrollTop
   },
   async mounted () {
     await this.loadMore()
@@ -98,23 +99,22 @@ export default {
     async loadMore () {
       if (this.nomore || this.leaving) return
 
-      const list = await this.getList(this.limit, this.type, this.offset)
+      const list = await this._getPlayList(this.limit, this.type, this.offset)
 
       if (!list) return
 
       if (list.length < this.limit) {
-        this.loadingState.playlist = END
+        this.loadState.playlist = END
       }
 
       this.page++
     },
-    async getList (limit, type, offset) {
-      this.loadingState.playlist = LOADING
+    async _getPlayList (limit, type, offset) {
+      this.loadState.playlist = LOADING
 
       let list = await getPlayList(limit, type, offset)
       if (!list) {
-        console.log('歌单获取失败')
-        this.loadingState.playlist = ERROR
+        this.loadState.playlist = ERROR
         return
       }
 
@@ -145,7 +145,7 @@ export default {
       })
 
       this.playlist = this.playlist.concat(list)
-      this.loadingState.playlist = LOADED
+      this.loadState.playlist = LOADED
       return list
     }
   }

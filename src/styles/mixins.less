@@ -1,4 +1,4 @@
-.circle-btn(@size) {
+.circle(@size) {
   width: @size;
   height: @size;
   border-radius: @size / 2;
@@ -9,13 +9,18 @@
   height: @size;
 }
 
-.allcenter() {
+.f-all-center() {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.vcenter() {
+.f-vertical-center() {
   display: flex;
   align-items: center;
+}
+
+.f-horizontal-center() {
+  display: flex;
+  justify-content: center;
 }

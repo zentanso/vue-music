@@ -1,27 +1,26 @@
 <template>
   <popup v-model="state" position="bottom" max-height="50%" @on-hide="onHide">
-    <list-item 
-      v-for="(track, index) in playlist" 
-      :key='track.id' 
-      :left="false" 
-      class="track-item"
-      @click.native.stop="onTrackClick(track.id)"
-    >
-      <div :class="['track-info', currentIndex === index ? 'playing' : '']" slot="title">
-        {{track.name}}
-        <span class="author">{{`-${track.artists[0].name}`}}</span>
-      </div>
-      <div class="icon-wrapper" @click.stop="onTrackDelete(track.id)" slot="right">
-        <x-icon type="ios-close-empty" class="delete-btn"></x-icon>
-      </div>
-    </list-item>
+    <ul>
+      <li 
+        v-for="(track, index) in playlist" 
+        :key='track.id' 
+        :left="false" 
+        class="track-item"
+        @click.stop="onTrackClick(track.id)"
+      >
+        <div :class="['track-info', currentIndex === index ? 'playing' : '']">
+          {{track.name}}
+          <span class="author">{{`-${track.artists[0].name}`}}</span>
+        </div>
+        <x-icon @click.stop="onTrackDelete(track.id)" type="ios-close-empty" class="delete-btn"></x-icon>
+      </li>
+    </ul>
   </popup>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex'
 import { Popup } from 'vux'
-import ListItem from '@/components/ListItem'
 
 export default {
   name: 'play-list-drawer',
@@ -31,8 +30,7 @@ export default {
     event: 'updateState'
   },
   components: {
-    Popup,
-    ListItem
+    Popup
   },
   computed: {
     ...mapState([
@@ -72,6 +70,9 @@ export default {
 @import '../styles/theme';
 
 .track-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid @light-grey
 }
 

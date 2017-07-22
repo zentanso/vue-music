@@ -21,11 +21,11 @@
             <x-icon type="android-download" size="30" class="custom-bar-icon"></x-icon>
           </div>
         </a>
-        <router-link :to="`/comments?type=track&id=${currentTrack && currentTrack.id}`">
+         <router-link :to="`/comments?type=track&id=${currentTrack && currentTrack.id}`">
           <div class="custom-bar-btn">
             <x-icon type="ios-chatboxes-outline" size="30" class="custom-bar-icon"></x-icon>
           </div>
-        </router-link>
+        </router-link> 
         <div v-if="!isFM" class="custom-bar-btn" @click="showDrawer">
           <x-icon type="ios-more" size="30" class="custom-bar-icon"></x-icon>
         </div>
@@ -60,7 +60,7 @@
       <div v-show="loadingUrl" class="control-bar-btn loading big">
         <x-icon type="load-c" size="30" class="player-icon"></x-icon>
       </div>
-      <div v-show="loadUrlError" class="control-bar-btn loading big" @click="reloadUrl">
+      <div v-show="loadUrlError" class="control-bar-btn big" @click="reloadUrl">
         <x-icon type="android-refresh" size="30" class="player-icon"></x-icon>
       </div>
       <div v-show="!playing && loadedUrl" class="control-bar-btn big" @click="control">
@@ -75,11 +75,12 @@
     </div>
     <lyric :style="{visibility: lyricState ? 'visible' : 'hidden'}" class="lyric" @click.native="hideLyric"></lyric>
     <play-list-drawer v-model="drawerState"></play-list-drawer>
+    <loading v-model="showFMLoading" text="FM歌曲加载中"></loading>
   </div>
 </template>
 
 <script>
-import { XHeader } from 'vux'
+import { XHeader, Loading } from 'vux'
 import { mapState, mapActions, mapGetters, mapMutations } from 'vuex'
 import { getPlayerTime } from '@/filters'
 import { LOADING, LOADED, ERROR } from '@/constants'
@@ -149,8 +150,18 @@ export default {
       } else if (this.loadState.dislike === LOADED) {
         return false
       } else {
-        return this.likedList.indexOf(this.currentTrack.id) >= 0
+        if (this.currentTrack) {
+          return this.likedList.indexOf(this.currentTrack.id) >= 0
+        } else {
+          return false
+        }
       }
+    },
+    loadingFM () {
+      return this.loadState.fm === LOADING
+    },
+    showFMLoading () {
+      return !this.currentTrack && this.loadingFM
     }
   },
   mounted () {
@@ -170,7 +181,8 @@ export default {
   components: {
     XHeader,
     PlayListDrawer,
-    Lyric
+    Lyric,
+    Loading
   },
   methods: {
     ...mapActions([
@@ -262,7 +274,6 @@ export default {
       if (this.currentIndex && (this.currentIndex === this.playlist.length - 1)) {
         let index = this.currentIndex
         for (let i = 0; i < index; i++) {
-          console.log(i, this.playlist[0].name)
           this.deleteTrack(this.playlist[0].id)
         }
       }
@@ -379,8 +390,8 @@ export default {
 }
 
 .custom-bar-btn {
-  .circle-btn(2rem);
-  .allcenter();
+  .circle(2rem);
+  .f-all-center();
   border: 1px solid @light-grey;
   &:active {
     background-color: #f6f8fe;
@@ -399,7 +410,7 @@ export default {
   width: 100%;
   height: 1rem;
   padding: 0 0.5rem 0 0.5rem;
-  .vcenter();
+  .f-vertical-center();
   justify-content: space-between;
   .time {
     font-size: 0.5rem;
@@ -420,13 +431,13 @@ export default {
   position: absolute;
   top: -4px;
   transform: translateX(-4px);
-  .circle-btn(10px);
-  .allcenter();
+  .circle(10px);
+  .f-all-center();
   background-color: #fff;
   border: 1px solid @light-grey;
   z-index: 3;
   span {
-    .circle-btn(4px);
+    .circle(4px);
     background-color: @theme-color;
   } 
 }
@@ -462,13 +473,13 @@ export default {
 }
 
 .control-bar-btn {
-  .allcenter();
+  .f-all-center();
   background-color: @theme-color;
-  .circle-btn(40px);
+  .circle(40px);
   animation: circling 1s linear infinite;
   animation-play-state: paused;
   &.big {
-    .circle-btn(48px);
+    .circle(48px);
   }
   &:active {
     background-color: @theme-active-color;
@@ -513,13 +524,14 @@ export default {
   top: 4.5rem;
   left: 50%;
   margin-left: -5rem;
-  .circle-btn(10rem);
+  .circle(10rem);
   background: url('../../../static/img/disk.png') no-repeat center;
   background-size: 100%;
+  z-index: 1;
 }
 
 .disk-img {
-  .circle-btn(6rem);
+  .circle(6rem);
   animation: circling 10s infinite linear;
   animation-play-state: paused; 
   &.playing {

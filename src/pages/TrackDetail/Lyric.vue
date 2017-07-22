@@ -1,6 +1,6 @@
 <template>
   <div class="lyric-content">
-    <div class="content-wrapper" :style="{transform: `translateY(-${lyricIndex === -1 ? 0 : lyricPos[lyricIndex]}px)`}">
+    <div ref="lyricWrapper" class="content-wrapper" :style="{transform: `translateY(-${lyricIndex === -1 ? 0 : lyricPos[lyricIndex]}px)`}">
       <p 
         v-for="(item, index) in lyricArr" 
         :class="[index === lyricIndex ? 'hint' : '']"
@@ -8,12 +8,23 @@
       >
         {{item.str}}
       </p>
+      
     </div>
+    <loading-msg
+        :isLoading="loadingLyric"
+        :isError="loadLyricError"
+        :reloadFunc="reloadLyric"
+        loadingMsg="加载歌词中"
+    >
+    </loading-msg>
+    <div v-show="lyricPos.length <= 1 && loadedLyric">暂时没有歌词（￣▽￣）</div>
   </div>
 </template>
 
 <script>
-import { mapState, mapGetters } from 'vuex'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import { LOADING, LOADED, ERROR } from '@/constants'
+import LoadingMsg from '@/pages/common/LoadingMsg'
 
 export default {
   name: 'lyric',
@@ -24,10 +35,14 @@ export default {
       lyricPos: []
     }
   },
+  components: {
+    LoadingMsg
+  },
   computed: {
     ...mapState([
       'currentTime',
-      'duration'
+      'duration',
+      'loadState'
     ]),
     ...mapGetters([
       'currentLyric',
@@ -35,6 +50,15 @@ export default {
     ]),
     lyricArr () {
       return this.formatLyric(this.currentLyric)
+    },
+    loadingLyric () {
+      return this.loadState.lyric === LOADING
+    },
+    loadLyricError () {
+      return this.loadState.lyric === ERROR
+    },
+    loadedLyric () {
+      return this.loadState.lyric === LOADED
     }
   },
   mounted () {
@@ -81,6 +105,12 @@ export default {
     }
   },
   methods: {
+    ...mapMutations([
+      'SET_LYRIC_STATE'
+    ]),
+    ...mapActions([
+      'setTrackLyric'
+    ]),
     formatLyric (lyric) {
       if (!lyric) return []
       const arr = lyric.split('\n')
@@ -110,6 +140,21 @@ export default {
         return all + item.clientHeight
       }, 0)
       this.$el.style.display = ''
+    },
+    async reloadLyric () {
+      this.SET_LYRIC_STATE({
+        state: LOADING
+      })
+      const result = await this.setTrackLyric(this.currentTrack.id)
+      if (!result) {
+        this.SET_LYRIC_STATE({
+          state: ERROR
+        })
+      } else {
+        this.SET_LYRIC_STATE({
+          state: LOADED
+        })
+      }
     }
   }
 }

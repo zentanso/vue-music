@@ -31,10 +31,14 @@
       <h2 class="group-title">
         <router-link to="playlist">推荐歌单</router-link>
       </h2>
-      <load-error :callback="initRecommendSongList" :show="loadState.recommendList === ERROR"></load-error>
-      <m-loading v-if="loadState.recommendList === LOADING" tip="努力加载中^_^"></m-loading>
+      <loading-msg
+        :isLoading="loadingRecommendSongList"
+        :isError="loadRecommendSongListError"
+        :reloadFunc="_getRecommendSongList"
+      >
+      </loading-msg>
       <div class="group-content">
-        <router-link v-for="item in recommendList" :key="item.id" :to="`/playlistdetail/${item.id}`">
+        <router-link v-for="item in recommendSongList" :key="item.id" :to="`/playlistdetail/${item.id}`">
           <square-pic-item :size="picSize" :pic="item.picUrl" :desc="item.name">
             <span slot="top-right">
               <x-icon size="12" type="headphone"></x-icon>
@@ -48,8 +52,12 @@
       <h2 class="group-title">
         <router-link to="playlist">推荐音乐</router-link>
       </h2>
-      <load-error :show="loadState.newSongs === ERROR"></load-error>
-      <m-loading v-if="loadState.newSongs === LOADING" tip="努力加载中^_^"></m-loading>
+      <loading-msg
+        :isLoading="loadingNewSongs"
+        :isError="loadNewSongsError"
+        :reloadFunc="_getNewSongs"
+      >
+      </loading-msg>
       <div class="group-content">
         <square-pic-item @click.native="onSongClick(item.song)" v-for="item in newSongs" :key="item.id" :size="picSize" :pic="item.picUrl" :desc="item.name">
         </square-pic-item>
@@ -61,14 +69,11 @@
 <script>
 import { Swiper } from 'vux'
 import SquarePicItem from '@/components/SquarePicItem'
-import MLoading from '@/components/MLoading'
-import LoadError from '@/components/LoadError'
+import LoadingMsg from '../common/LoadingMsg'
 import { mapState, mapActions } from 'vuex'
 import {
   getRecommendSongList,
-  getNewSong,
-  getBanner,
-  getRecommendSongs
+  getNewSong
 } from '@/api'
 import { getListenNum } from '@/filters'
 
@@ -93,11 +98,11 @@ export default {
         }
       ],
       picSize: '5rem',
-      recommendList: [],
+      recommendSongList: [],
       newSongs: [],
       loadState: {
         newSongs: LOADED,
-        recommendList: LOADED,
+        recommendSongList: LOADED,
         banner: LOADED
       },
       LOADING,
@@ -111,8 +116,7 @@ export default {
   components: {
     Swiper,
     SquarePicItem,
-    MLoading,
-    LoadError
+    LoadingMsg
   },
   mounted () {
     this.onMounted()
@@ -122,8 +126,20 @@ export default {
   },
   computed: {
     ...mapState(
-      ['myid']
-    )
+      ['myid', 'isFM']
+    ),
+    loadingRecommendSongList () {
+      return this.loadState.recommendSongList === LOADING
+    },
+    loadRecommendSongListError () {
+      return this.loadState.recommendSongList === ERROR
+    },
+    loadingNewSongs () {
+      return this.loadState.newSongs === LOADING
+    },
+    loadNewSongsError () {
+      return this.loadState.newSongs === ERROR
+    }
   },
   methods: {
     ...mapActions([
@@ -136,38 +152,19 @@ export default {
       await Promise.all([
         // 这个接口有毒！频繁调用会被网易拉黑0.0
         // this.initBanner(),
-        this.initRecommendSongList(),
-        this.initNewSongs()
+        this._getRecommendSongList(),
+        this._getNewSongs()
       ])
     },
-    async initBanner () {
-      this.loadState.banner = LOADING
-      let result = await getBanner()
-      if (!result) {
-        this.loadState.banner = ERROR
-        return
-      }
-      result = result.data.banners
-      result = result.map(item => {
-        return {
-          url: 'javascript:void(0)',
-          img: item.pic,
-          title: item.typeTitle
-        }
-      })
-      this.banner = result
-      this.loadState.banner = LOADED
-    },
-    async initRecommendSongList () {
-      this.loadState.recommendList = LOADING
+    async _getRecommendSongList () {
+      this.loadState.recommendSongList = LOADING
       let recSongList = await getRecommendSongList()
       if (!recSongList) {
-        console.log('数据获取失败')
-        this.loadState.recommendList = ERROR
+        this.loadState.recommendSongList = ERROR
         return
       }
       recSongList = recSongList.data.result
-      this.recommendList = recSongList.map(({picUrl, name, playCount, id}) => {
+      this.recommendSongList = recSongList.map(({picUrl, name, playCount, id}) => {
         return {
           picUrl: picUrl + '?param=140y140',
           name,
@@ -175,9 +172,9 @@ export default {
           id
         }
       })
-      this.loadState.recommendList = LOADED
+      this.loadState.recommendSongList = LOADED
     },
-    async initNewSongs () {
+    async _getNewSongs () {
       this.loadState.newSongs = LOADING
       let newSongs = await getNewSong()
       if (!newSongs) {
@@ -196,14 +193,13 @@ export default {
       this.loadState.newSongs = LOADED
     },
     onSongClick (item) {
-      this.setIsFM(false)
-      this.clearPlayList()
+      console.log(this.isFM)
+      if (this.isFM) {
+        this.setIsFM(false)
+        this.clearPlayList()
+      }
       this.addTrack(item)
-      // this.toTrack(id)
-    },
-    async _getRec () {
-      const res = await getRecommendSongs()
-      console.log(res)
+      this.toTrack(item.id)
     }
   }
 }
@@ -229,8 +225,8 @@ export default {
       display: block;
       height: 100%;
       margin-bottom: 0.2rem;
-      .circle-btn(3rem);
-      .allcenter();
+      .circle(3rem);
+      .f-all-center();
       border: 1px solid @theme-color;
     }
   }

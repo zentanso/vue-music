@@ -11,8 +11,8 @@
       infinite-scroll-distance="100"
     >
       <div class="comment-type" v-if="commentData.hotComments && commentData.hotComments.length">精彩评论</div>
-      <div class="comment-list">
-        <div :key="item.id" v-for="item in commentData.hotComments" class="comment-list-item">
+      <ul class="comment-list">
+        <li :key="item.id" v-for="item in commentData.hotComments" class="comment-list-item">
           <router-link :to="`/user/${item.user.userId}`" class="avatar" :style="{backgroundImage: `url(${item.user.avatarUrl})`}">
           </router-link>
           <div class="comment-detail">
@@ -28,13 +28,11 @@
             </div>
             <p class="content">{{item.content}}</p>
           </div>
-        </div>
-      </div>
+        </li>
+      </ul>
       <div class="comment-type" v-if="commentData.hotComments">最新评论</div>
-      <div 
-        class="comment-list"
-      >
-        <div :key="item.id" v-for="item in commentData.comments" class="comment-list-item">
+      <ul class="comment-list">
+        <li :key="item.id" v-for="item in commentData.comments" class="comment-list-item">
           <router-link :to="`/user/${item.user.userId}`" class="avatar" :style="{backgroundImage: `url(${item.user.avatarUrl+'?param=38y38'})`}">
           </router-link>
           <div class="comment-detail">
@@ -50,10 +48,14 @@
             </div>
             <p class="content">{{item.content}}</p>
           </div>
-        </div>
-      </div>
-      <m-loading v-show="loadingComment"></m-loading>
-      <load-error v-show="loadCommentError" @click.native="getMoreComment"></load-error>
+        </li>
+      </ul>
+      <loading-msg 
+        :isLoading="loadingComment" 
+        :isError="loadCommentError"
+        :reloadFunc="getMoreComment"
+      >
+      </loading-msg>
     </div>
   </div>
 </template>
@@ -66,8 +68,7 @@ import {
 } from '@/api'
 
 import { LOADING, LOADED, ERROR } from '@/constants'
-import LoadError from '@/components/LoadError'
-import MLoading from '@/components/MLoading'
+import LoadingMsg from '../common/LoadingMsg'
 import { XHeader } from 'vux'
 
 export default {
@@ -85,9 +86,8 @@ export default {
     }
   },
   components: {
-    MLoading,
-    LoadError,
-    XHeader
+    XHeader,
+    LoadingMsg
   },
   async activated () {
     const {id} = this.$route.query
@@ -184,7 +184,7 @@ export default {
 }
 .avatar {
   display: block;
-  .circle-btn(38px);
+  .circle(38px);
   flex-shrink: 0;
   background-repeat: no-repeat;
   background-size: cover;
@@ -226,7 +226,7 @@ export default {
   }
   .content {
     padding: 0.5rem 0.5rem 0.5rem 0;
-    font-size: 10px;
+    font-size: 14px;
     line-height: 1.5;
     word-break: break-all;
   }

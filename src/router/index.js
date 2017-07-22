@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/pages/Home'
-import PlayListDetail from '@/pages/PlayListDetail'
-import TrackDetail from '@/pages/TrackDetail'
-import Search from '@/pages/Search'
-import Comments from '@/pages/Comments'
-import Login from '@/pages/Login'
-import User from '@/pages/User'
+// code splitting
+const PlayListDetail = () => import('@/pages/PlayListDetail')
+const TrackDetail = () => import('@/pages/TrackDetail')
+const Search = () => import('@/pages/Search')
+const Comments = () => import('@/pages/Comments')
+const Login = () => import('@/pages/Login')
+const User = () => import('@/pages/User')
 
 Vue.use(Router)
 

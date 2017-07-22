@@ -20,6 +20,7 @@ export default {
   },
   mounted () {
     if (window.localStorage.myid) {
+      // 应用初始挂载时获取用户id以及喜欢列表
       this.$store.commit('SET_MY_ID', {
         myid: window.localStorage.myid
       })
@@ -38,6 +39,15 @@ body {
 
 h1, h2, h3, h4, h5, h6, p {
   margin: 0;
+}
+
+li {
+  list-style: none;
+}
+
+ol, ul {
+  margin: 0;
+  padding: 0;
 }
 
 a {
@@ -73,7 +83,6 @@ a:active {
   opacity: 0;
 }
 .fade-enter-active {
-  // 组件并存期间会导致组件位置抖动，故设定position absolute
   transition: opacity .8s
 }
 .fade-enter-to {
@@ -97,6 +106,7 @@ a:active {
   }
 }
 
+// load-more动画相关
 .generate-animation(bar1, 0%, 100%);
 .generate-animation(bar2, 100%, 50%);
 .generate-animation(bar3, 30%, 90%);

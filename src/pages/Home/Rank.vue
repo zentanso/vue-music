@@ -11,17 +11,20 @@
       >
         <span slot="bottom-left">{{item.updateFrequency}}</span>
       </square-pic-item>
-      <m-loading v-if="loading === LOADING"></m-loading>
-      <load-error v-if="loading === ERROR"></load-error>
+      <Loading-msg
+        :isLoading="loadingRank"
+        :isError="loadRankError"
+        :reloadFunc="_getTopList"
+      >
+      </Loading-msg>
     </div>
   </div>
 </template>
 
 <script>
 import SquarePicItem from '@/components/SquarePicItem'
-import MLoading from '@/components/MLoading'
-import LoadError from '@/components/LoadError'
 import { LOADING, ERROR, LOADED } from '@/constants'
+import LoadingMsg from '../common/LoadingMsg'
 
 import { getTopList } from '@/api'
 export default {
@@ -29,30 +32,36 @@ export default {
   data () {
     return {
       topLists: [],
-      loading: LOADED,
-      LOADING,
-      LOADED,
-      ERROR
+      loadState: {
+        rank: LOADED
+      }
     }
   },
   components: {
     SquarePicItem,
-    MLoading,
-    LoadError
+    LoadingMsg
+  },
+  computed: {
+    loadingRank () {
+      return this.loadState.rank === LOADING
+    },
+    loadRankError () {
+      return this.loadState.rank === ERROR
+    }
   },
   mounted () {
     this._getTopList()
   },
   methods: {
     async _getTopList () {
-      this.loading = LOADING
+      this.loadState.rank = LOADING
       const result = await getTopList()
       if (!result) {
-        this.loading = ERROR
+        this.loadState.rank = ERROR
         return
       }
       this.topLists = result.data.list
-      this.loading = LOADED
+      this.loadState.rank = LOADED
     },
     onItemClick (id) {
       this.$router.push(`/playlistdetail/${id}`)
@@ -66,11 +75,5 @@ export default {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-}
-
-.list-detail {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
 }
 </style>

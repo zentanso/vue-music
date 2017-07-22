@@ -15,7 +15,9 @@
   },
   "dependencies": {
     "axios": "^0.16.2",
+    "express-static-gzip": "^0.3.0",
     "node-sass": "^4.5.3",
+    "pre-compressed-assets": "^1.1.0",
     "vue": "^2.3.3",
     "vue-infinite-scroll": "^2.0.1",
     "vue-lazyload": "^1.0.5",
@@ -35,6 +37,7 @@
     "babel-register": "^6.22.0",
     "chai": "^3.5.0",
     "chalk": "^1.1.3",
+    "compression-webpack-plugin": "^1.0.0",
     "connect-history-api-fallback": "^1.3.0",
     "copy-webpack-plugin": "^4.0.1",
     "cross-env": "^4.0.0",

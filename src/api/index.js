@@ -119,7 +119,7 @@ export function search (keywords, type, limit = 20, offset = 0) {
   })
 }
 
-//  ------------------ 登 陆 -------------------------
+//  ------------------ 登陆相关 -------------------------
 export function login (phone, password) {
   return get('/login/cellphone', {
     params: {
@@ -128,19 +128,19 @@ export function login (phone, password) {
     }
   })
 }
-
+// 刷新登录状态
 export function refreshLogin () {
   return get('/login/refresh')
 }
-
+// 获取每日推荐
 export function getRecommendSongs () {
   return get('/recommend/songs')
 }
-
+// 私人FM
 export function getPersonalFM () {
   return get('/personal_fm')
 }
-
+// 加红心
 export function likeTrack (id, like) {
   return get('/like', {
     params: {
@@ -149,7 +149,7 @@ export function likeTrack (id, like) {
     }
   })
 }
-
+// 垃圾桶
 export function fmTrash (id) {
   return get('/fm_trash', {
     params: {

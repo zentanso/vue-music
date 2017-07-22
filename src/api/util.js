@@ -4,6 +4,7 @@ import { baseURL, timeout, withCredentials } from './config'
 const api = axios.create({
   baseURL,
   timeout,
+  // 跨域设置cookie相关
   withCredentials
 })
 /**
