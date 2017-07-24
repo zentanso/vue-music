@@ -3,7 +3,7 @@
     <swiper auto :list="banner" :aspect-ratio="145/375"></swiper>
     <div class="rec-wrapper">
       <div>
-        <router-link :to="myid ? '/trackdetail?type=FM' : '/login'">
+        <router-link :to="userid ? '/trackdetail?type=FM' : '/login'">
           <span>
             <x-icon type="radio-waves" class="rec-icon"></x-icon>
           </span>
@@ -11,7 +11,7 @@
         </router-link>
       </div>
       <div>
-        <router-link :to="myid ? '/playlistdetail/recommend' : '/login'">
+        <router-link :to="userid ? '/playlistdetail/recommend' : '/login'">
           <span>
             <x-icon type="calendar" class="rec-icon"></x-icon>          
           </span>
@@ -85,19 +85,19 @@ export default {
     return {
       banner: [
         {
-          img: 'http://p1.music.126.net/ntBTJFyafc68tBybLfWVww==/19155691579345148.jpg'
+          img: 'http://p1.music.126.net/ntBTJFyafc68tBybLfWVww==/19155691579345148.jpg?param=375y145'
         },
         {
-          img: 'http://p1.music.126.net/0sDwLx0-YVD6ALyTjZAtOg==/18658712325254492.jpg'
+          img: 'http://p1.music.126.net/0sDwLx0-YVD6ALyTjZAtOg==/18658712325254492.jpg?param=375y145'
         },
         {
-          img: 'http://p1.music.126.net/LrAgAxQAe0_qHMd-IXPCfg==/18598239185799345.jpg'
+          img: 'http://p1.music.126.net/LrAgAxQAe0_qHMd-IXPCfg==/18598239185799345.jpg?param=375y145'
         },
         {
-          img: 'http://p1.music.126.net/JHLcF8kOES7pyibLAjHqjA==/18765364953234950.jpg'
+          img: 'http://p1.music.126.net/JHLcF8kOES7pyibLAjHqjA==/18765364953234950.jpg?param=375y145'
         }
       ],
-      picSize: '5rem',
+      picSize: '33vw',
       recommendSongList: [],
       newSongs: [],
       loadState: {
@@ -126,7 +126,7 @@ export default {
   },
   computed: {
     ...mapState(
-      ['myid', 'isFM']
+      ['userid', 'isFM']
     ),
     loadingRecommendSongList () {
       return this.loadState.recommendSongList === LOADING

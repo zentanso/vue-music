@@ -4,8 +4,8 @@
       <square-pic-item 
         v-for="item in topLists" 
         :key="item.id" 
-        size="5.2rem" 
-        :pic="item.coverImgUrl+'?params=200y200'" 
+        size="33vw" 
+        :pic="item.coverImgUrl+'?param=200y200'" 
         :desc="item.name"
         @click.native="onItemClick(item.id)"
       >

@@ -43,7 +43,7 @@ export default {
   nextTrack ({commit, state}) {
     if (state.currentIndex >= state.playlist.length - 1) {
       console.log('已到最后一首')
-      return
+      // return
     }
     commit('NEXT_TRACK')
   },
@@ -82,9 +82,15 @@ export default {
       isFM
     })
   },
-  setMyId ({commit}, myid) {
-    commit('SET_MY_ID', {
-      myid
+  setUserId ({commit}, userid) {
+    commit('SET_USER_ID', {
+      userid
+    })
+  },
+  setPlayerMode ({commit}, mode) {
+    console.log(mode)
+    commit('SET_PLAYER_MODE', {
+      mode
     })
   },
   async setTrackUrl ({commit}, id) {
@@ -118,13 +124,13 @@ export default {
     return lyric
   },
   async getLikedList ({commit, state}) {
-    if (!state.myid) {
+    if (!state.userid) {
       console.log('getLikedList: not logged in!')
       return
     }
     let likedListId = -1
     if (!window.localStorage.likedListId) {
-      let ret = await getUserPlayList(state.myid)
+      let ret = await getUserPlayList(state.userid)
 
       if (!ret) {
         console.log('getUserList error')

@@ -60,7 +60,7 @@ export default {
   },
   computed: {
     ...mapState([
-      'myid'
+      'userid'
     ]),
     currentTab () {
       return this.$route.params.tab
@@ -79,7 +79,7 @@ export default {
     loginPath () {
       const cookie = Cookie.get('__csrf')
       if (cookie) {
-        return `/user/${this.myid}`
+        return `/user/${this.userid}`
       } else {
         return '/login'
       }

@@ -56,10 +56,7 @@ export default {
     ...mapGetters([
       'currentTrack',
       'currentLyric'
-    ]),
-    match () {
-      return this.$refs.source.src
-    }
+    ])
   },
   watch: {
     url () {
@@ -156,7 +153,6 @@ export default {
       }
     },
     onerror (e) {
-      this.error = 'error'
       if (this.url === '') return
       if (this.currentIndex === this.playlist.length - 1) return
       this.setDuration(0)
@@ -178,6 +174,7 @@ export default {
       this.updateCurrentTime(this.player.currentTime)
     },
     ontimeupdate () {
+      // 进度条被用户移动过程中
       if (this.jumping) {
         this.player.currentTime = this.currentTime
         this.setJumping(false)

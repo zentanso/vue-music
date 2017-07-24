@@ -7,7 +7,7 @@
     <div class="wrapper">
       <div class="playlist-header">
         <div v-if="!isRecommend">
-          <square-pic-item size="5rem" :pic="detail.coverImgUrl + '?params=300y300'"></square-pic-item>
+          <square-pic-item size="5rem" :pic="detail.coverImgUrl + '?param=300y300'"></square-pic-item>
           <div class="desc">
             <div class="playlist-name">{{detail && detail.name}}</div>
             <router-link :to="`/user/${detail.creator && detail.creator.userId}`" :style="{color: '#fff'}">

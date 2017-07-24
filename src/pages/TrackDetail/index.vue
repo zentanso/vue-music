@@ -116,7 +116,7 @@ export default {
       'playlist',
       'isFM',
       'likedList',
-      'myid'
+      'userid'
     ]),
     ...mapGetters([
       'currentTrack',
@@ -294,7 +294,7 @@ export default {
     // 由于更新用户喜欢列表过慢，如果红心仅仅依赖于列表会让操作看起来非常慢
     // 所以内置一个like和dislike状态以表示喜欢/取消喜欢异步操作状态
     async _likeTrack () {
-      if (!this.myid) {
+      if (!this.userid) {
         this.$router.push('/login')
         return
       }
@@ -313,7 +313,7 @@ export default {
       await this.getLikedList()
     },
     async _dislikeTrack () {
-      if (!this.myid) {
+      if (!this.userid) {
         this.$router.push('/login')
         return
       }
@@ -510,7 +510,7 @@ export default {
   transform-origin: 0.6rem 0.6rem;  
   transform: rotate(-30deg);
   transition: transform .3s linear;
-  z-index: 1;
+  z-index: 2;
   &.playing {
     transform: rotate(-5deg)
   }

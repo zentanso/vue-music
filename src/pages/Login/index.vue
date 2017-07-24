@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     ...mapActions([
-      'setMyId'
+      'setUserId'
     ]),
     onBackClick () {
       window.history.go(-1)
@@ -81,8 +81,8 @@ export default {
         return
       }
       this.loadState.login = LOADED
-      this.setMyId(res.data.profile.userId)
-      window.localStorage.myid = res.data.profile.userId
+      this.setUserId(res.data.profile.userId)
+      window.localStorage.userid = res.data.profile.userId
       this.$router.push('/')
     },
     validatePhone (str) {

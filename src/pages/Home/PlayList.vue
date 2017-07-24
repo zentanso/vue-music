@@ -43,7 +43,7 @@ export default {
       },
       limit: 10,
       page: 0,
-      picSize: '7.9rem',
+      picSize: '49.5vw',
       end: false,
       leaving: false,
       tabIndex: 0,

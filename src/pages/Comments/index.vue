@@ -13,7 +13,7 @@
       <div class="comment-type" v-if="commentData.hotComments && commentData.hotComments.length">精彩评论</div>
       <ul class="comment-list">
         <li :key="item.id" v-for="item in commentData.hotComments" class="comment-list-item">
-          <router-link :to="`/user/${item.user.userId}`" class="avatar" :style="{backgroundImage: `url(${item.user.avatarUrl})`}">
+          <router-link :to="`/user/${item.user.userId}`" class="avatar" :style="{backgroundImage: `url(${item.user.avatarUrl+'?param=50y50'})`}">
           </router-link>
           <div class="comment-detail">
             <div class="detail-top">

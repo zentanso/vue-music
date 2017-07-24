@@ -19,10 +19,10 @@ export default {
     MyAudio
   },
   mounted () {
-    if (window.localStorage.myid) {
+    if (window.localStorage.userid) {
       // 应用初始挂载时获取用户id以及喜欢列表
-      this.$store.commit('SET_MY_ID', {
-        myid: window.localStorage.myid
+      this.$store.commit('SET_USER_ID', {
+        userid: window.localStorage.userid
       })
       this.$store.dispatch('getLikedList')
     }
@@ -83,7 +83,7 @@ a:active {
   opacity: 0;
 }
 .fade-enter-active {
-  transition: opacity .8s
+  transition: opacity .3s
 }
 .fade-enter-to {
   opacity: 1

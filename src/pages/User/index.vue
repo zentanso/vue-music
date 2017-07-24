@@ -4,8 +4,8 @@
       用户信息
       <x-icon slot="overwrite-left" type="android-arrow-back" class="topbar-icon" @click="onBackClick"></x-icon>
     </x-header>
-    <div class="user-wrapper" :style="{backgroundImage: `url(${profile.backgroundUrl})`}">
-      <span class="avatar":style="{backgroundImage: `url(${profile.avatarUrl})`}"></span>
+    <div class="user-wrapper" :style="{backgroundImage: `url(${profile.backgroundUrl+'?param=300y300'}`}">
+      <span class="avatar":style="{backgroundImage: `url(${profile.avatarUrl+'?param=100y100'})`}"></span>
       <span class="name">{{profile.nickname || '加载中'}}</span>
       <p>
         <span class="follows">关注{{profile.follows || 0}}</span>

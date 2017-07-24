@@ -15,10 +15,13 @@ import {
   SET_TRACK_LYRIC,
   SET_LYRIC_STATE,
   SET_URL_STATE,
-  SET_MY_ID,
+  SET_USER_ID,
   SET_IS_FM,
-  GET_LIKED_LIST
+  GET_LIKED_LIST,
+  SET_PLAYER_MODE
 } from './mutation-types'
+
+import {SINGLE, LIST_CYCLE, RANDOM} from '@/constants'
 
 export default {
   [PLAY] (state) {
@@ -73,10 +76,44 @@ export default {
     state.currentIndex = trackIndex
   },
   [PREV_TRACK] (state) {
-    state.currentIndex--
+    switch (state.mode) {
+      case SINGLE:
+        state.currentTime = 0
+        break
+      case LIST_CYCLE:
+        if (state.currentIndex !== 0) {
+          state.currentIndex--
+        } else {
+          state.currentIndex = state.playlist.length - 1
+        }
+        break
+      case RANDOM:
+        const index = Math.floor(state.playlist.length * Math.random())
+        state.currentIndex = index
+        break
+      default:
+        break
+    }
   },
   [NEXT_TRACK] (state) {
-    state.currentIndex++
+    switch (state.mode) {
+      case SINGLE:
+        state.currentTime = 0
+        break
+      case LIST_CYCLE:
+        if (state.currentIndex < state.playlist.length - 1) {
+          state.currentIndex++
+        } else {
+          state.currentIndex = 0
+        }
+        break
+      case RANDOM:
+        const index = Math.floor(state.playlist.length * Math.random())
+        state.currentIndex = index
+        break
+      default:
+        break
+    }
   },
   [SET_LOADING_URL] (state, payload) {
     state.loadingUrl = payload.isLoading
@@ -118,13 +155,16 @@ export default {
   [SET_URL_STATE] (state, payload) {
     state.loadState.url = payload.state
   },
-  [SET_MY_ID] (state, payload) {
-    state.myid = payload.myid
+  [SET_USER_ID] (state, payload) {
+    state.userid = payload.userid
   },
   [SET_IS_FM] (state, payload) {
     state.isFM = payload.isFM
   },
   [GET_LIKED_LIST] (state, payload) {
     state.likedList = payload.likedList
+  },
+  [SET_PLAYER_MODE] (state, payload) {
+    state.mode = payload.mode
   }
 }

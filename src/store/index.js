@@ -4,7 +4,7 @@ import actions from './actions'
 import mutations from './mutations'
 import getters from './getters'
 
-import { LOADED } from '@/constants'
+import { LOADED, LIST_CYCLE } from '@/constants'
 
 Vue.use(Vuex)
 
@@ -20,9 +20,10 @@ const state = {
   playing: false,
   currentIndex: 0,
   jumping: false,
-  myid: 0,
+  userid: 0,
   isFM: false,
-  likedList: []
+  likedList: [],
+  mode: LIST_CYCLE
 }
 
 export default new Vuex.Store({
